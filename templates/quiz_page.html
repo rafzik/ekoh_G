@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>{{ session['difficulty']|capitalize }} Quiz</h2>
+    {% if not submitted %}
+    <form method="POST" id="quiz-form">
+        {% for q in questions %}
+            <div class="question-box" data-question="{{ loop.index0 }}">
+                <p><strong>Q{{ loop.index }}:</strong> {{ q.question }}</p>
+                <div class="options">
+                    {% for opt in q.options %}
+                        <div class="option" data-value="{{ opt }}">
+                            {{ opt }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <!-- Hidden input to hold selected value -->
+                <input type="hidden" name="question_{{ loop.index0 }}" value="">
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn" id="submit-btn" disabled>Submit Quiz</button>
+    </form>
+
+    <style>
+        .option {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 4px;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .option.selected {
+            background: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        .question-box {
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+        .question-box.unanswered {
+            border: 2px solid red;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const submitBtn = document.getElementById("submit-btn");
+            const questionBoxes = document.querySelectorAll(".question-box");
+
+            questionBoxes.forEach(box => {
+                const options = box.querySelectorAll(".option");
+                const hiddenInput = box.querySelector("input[type='hidden']");
+
+                options.forEach(option => {
+                    option.addEventListener("click", function () {
+                        // Remove selected from all options in this question
+                        options.forEach(opt => opt.classList.remove("selected"));
+                        // Add selected to clicked option
+                        this.classList.add("selected");
+                        // Update hidden input value
+                        hiddenInput.value = this.dataset.value;
+
+                        checkAllAnswered();
+                    });
+                });
+            });
+
+            function checkAllAnswered() {
+                let allAnswered = true;
+                questionBoxes.forEach(box => {
+                    const hiddenInput = box.querySelector("input[type='hidden']");
+                    if (!hiddenInput.value) {
+                        allAnswered = false;
+                        box.classList.add("unanswered");
+                    } else {
+                        box.classList.remove("unanswered");
+                    }
+                });
+                submitBtn.disabled = !allAnswered;
+            }
+
+            document.getElementById("quiz-form").addEventListener("submit", function (e) {
+                checkAllAnswered();
+                if (submitBtn.disabled) {
+                    e.preventDefault();
+                    alert("Please answer all questions before submitting!");
+                }
+            });
+        });
+    </script>
+    {% else %}
+    <h3>Your Score: {{ score }}</h3>
+    <a href="{{ url_for('quiz') }}" class="btn">Take Another Quiz</a>
+    {% endif %}
+</div>
+{% endblock %}

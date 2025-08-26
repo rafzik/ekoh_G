@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Welcome {{ current_user.username }}!</h2>
+
+<form method="POST">
+    <textarea id="message" name="message" rows="4" placeholder="Ask your C++ question..."></textarea><br>
+    
+    <button class="btn" type="submit">Ask</button>
+    <button type="button" onclick="startRecognition()">🎤 Speak Question</button>
+</form>
+
+{% if reply %}
+<div id="bot-reply-container" style="margin-top: 20px; text-align:left; background-color:#f0f0f0; padding:15px; border-radius:8px;">
+    <strong>Bot:</strong> <span id="bot-reply">{{ reply }}</span>
+    <br><br>
+    <button id="speak-btn" class="btn" type="button" onclick="toggleSpeak()" style="width:auto;">🔊 Speak Answer</button>
+</div>
+{% endif %}
+
+<br>
+<a href="{{ url_for('logout') }}" class="btn" style="background-color:#dc3545;">Logout</a>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // 🎤 Speech-to-Text: Convert user's voice to text
+    function startRecognition() {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+
+        recognition.onstart = function() {
+            console.log("Voice recognition started. Speak now.");
+        };
+
+        recognition.onerror = function(event) {
+            console.error("Speech recognition error:", event.error);
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('message').value = transcript;
+        };
+
+        recognition.start();
+    }
+
+    // 🔊 Text-to-Speech: Toggle Speak/Stop for the bot's reply
+    let isSpeaking = false;
+    let utterance;
+
+    function toggleSpeak() {
+        const speakBtn = document.getElementById("speak-btn");
+        const replyElement = document.getElementById('bot-reply');
+
+        if (!replyElement) return;
+
+        if (!isSpeaking) {
+            // Start speaking
+            const reply = replyElement.innerText;
+            utterance = new SpeechSynthesisUtterance(reply);
+            utterance.lang = 'en-US';
+            
+            utterance.onend = () => {
+                isSpeaking = false;
+                speakBtn.innerText = "🔊 Speak Answer";
+            };
+
+            window.speechSynthesis.speak(utterance);
+            isSpeaking = true;
+            speakBtn.innerText = "⏹️ Stop Speaking";
+        } else {
+            // Stop speaking
+            window.speechSynthesis.cancel();
+            isSpeaking = false;
+            speakBtn.innerText = "🔊 Speak Answer";
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <style>
+        body {
+            background-color: #007bff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        h2 { text-align: center; color: #003366; }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc;
+        }
+        .btn {
+            width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px;
+        }
+        .btn:hover { background-color: #0056b3; }
+        .flash { text-align: center; color: red; margin-top: 10px; }
+        .strength { font-size: 14px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <p class="flash">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" id="password" required>
+            <div class="strength" id="strengthMsg"></div>
+            <button type="submit" class="btn">Register</button>
+        </form>
+        <p style="text-align:center;">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+    </div>
+
+    <script>
+        const passwordField = document.getElementById('password');
+        const strengthMsg = document.getElementById('strengthMsg');
+
+        passwordField.addEventListener('input', function() {
+            const val = passwordField.value;
+            if (val.length < 6) {
+                strengthMsg.textContent = 'Weak Password';
+                strengthMsg.style.color = 'red';
+            } else if (val.match(/[A-Z]/) && val.match(/[0-9]/)) {
+                strengthMsg.textContent = 'Strong Password';
+                strengthMsg.style.color = 'green';
+            } else {
+                strengthMsg.textContent = 'Moderate Password';
+                strengthMsg.style.color = 'orange';
+            }
+        });
+    </script>
+</body>
+</html>

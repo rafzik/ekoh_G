@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Select Difficulty</h2>
+    <form method="POST">
+        <select name="difficulty" required>
+            <option value="">--Select--</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+        </select>
+        <br><br>
+        <button type="submit" class="btn">Generate Quiz</button>
+    </form>
+</div>
+{% endblock %}
