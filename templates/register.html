@@ -30,6 +30,7 @@
         .btn:hover { background-color: #0056b3; }
         .flash { text-align: center; color: red; margin-top: 10px; }
         .strength { font-size: 14px; margin-top: 5px; }
+        .error { color: red; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -42,11 +43,16 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        <form method="POST">
+        <form method="POST" onsubmit="return validateForm()">
             <input type="text" name="username" placeholder="Username" required>
             <input type="email" name="email" placeholder="Email" required>
+            
             <input type="password" name="password" placeholder="Password" id="password" required>
             <div class="strength" id="strengthMsg"></div>
+
+            <input type="password" name="confirm_password" placeholder="Confirm Password" id="confirm_password" required>
+            <div class="error" id="matchMsg"></div>
+            
             <button type="submit" class="btn">Register</button>
         </form>
         <p style="text-align:center;">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
@@ -54,8 +60,11 @@
 
     <script>
         const passwordField = document.getElementById('password');
+        const confirmPasswordField = document.getElementById('confirm_password');
         const strengthMsg = document.getElementById('strengthMsg');
+        const matchMsg = document.getElementById('matchMsg');
 
+        // Password strength checker
         passwordField.addEventListener('input', function() {
             const val = passwordField.value;
             if (val.length < 6) {
@@ -69,6 +78,24 @@
                 strengthMsg.style.color = 'orange';
             }
         });
+
+        // Confirm password check in real-time
+        confirmPasswordField.addEventListener('input', function() {
+            if (confirmPasswordField.value !== passwordField.value) {
+                matchMsg.textContent = 'Passwords do not match';
+            } else {
+                matchMsg.textContent = '';
+            }
+        });
+
+        // Final validation before submission
+        function validateForm() {
+            if (passwordField.value !== confirmPasswordField.value) {
+                matchMsg.textContent = 'Passwords do not match';
+                return false;
+            }
+            return true;
+        }
     </script>
 </body>
 </html>
